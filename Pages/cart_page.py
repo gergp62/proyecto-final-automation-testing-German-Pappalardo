@@ -10,6 +10,7 @@ class CartPage:
     _TITLE = (By.CLASS_NAME, "title")
     _CART_ITEMS = (By.CLASS_NAME, "cart_item")
     _ITEM_NAME = (By.CLASS_NAME, "inventory_item_name")
+    _CHECKOUT_BUTTON = (By.ID, "checkout")
 
     # --- Constructor ---
     def __init__(self, driver):
@@ -31,3 +32,10 @@ class CartPage:
             if item.find_element(*self._ITEM_NAME).text == nombre_producto:
                 return True
         return False
+
+    def clic_checkout(self):
+        """Hace clic en Checkout y nos lleva a la página de información."""
+        self.driver.find_element(*self._CHECKOUT_BUTTON).click()
+        # Importamos aquí para evitar referencias circulares
+        from .checkout_page import CheckoutPage
+        return CheckoutPage(self.driver)    
