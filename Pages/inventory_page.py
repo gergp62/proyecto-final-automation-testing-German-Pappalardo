@@ -6,6 +6,7 @@ class InventoryPage:
     # --- Locators ---
     _TITLE = (By.CLASS_NAME, "title")
     _MENU_BUTTON = (By.ID, "react-burger-menu-btn")
+    _FILTER_DROPDOWN = (By.CLASS_NAME, "product_sort_container")
     _CART_LINK = (By.CLASS_NAME, "shopping_cart_link")
     _CART_BADGE = (By.CLASS_NAME, "shopping_cart_badge")
     _PRODUCT_ITEMS = (By.CLASS_NAME, "inventory_item")
@@ -29,7 +30,21 @@ class InventoryPage:
             return self.driver.find_element(*self._TITLE).text
         except NoSuchElementException:
             return None
-            
+
+    def es_boton_menu_visible(self):
+        """Retorna True si el botón de menú hamburguesa es visible."""
+        try:
+            return self.driver.find_element(*self._MENU_BUTTON).is_displayed()
+        except NoSuchElementException:
+            return False
+
+    def es_filtro_visible(self):
+        """Retorna True si el dropdown de filtros es visible."""
+        try:
+            return self.driver.find_element(*self._FILTER_DROPDOWN).is_displayed()
+        except NoSuchElementException:
+            return False
+                    
     def obtener_cantidad_productos(self):
         """Retorna el número de productos visibles."""
         return len(self.driver.find_elements(*self._PRODUCT_ITEMS))
