@@ -1,5 +1,10 @@
 import pytest
 from selenium import webdriver
+import logging 
+import pytest_html # Necesario para rep. HTML
+import os
+from datetime import datetime
+
 
 # --- Fixture del Driver ---
 
@@ -64,13 +69,18 @@ def pytest_runtest_makereport(item, call):
             driver_fixture.save_screenshot(file_path)
             print(f"\n📸 Screenshot guardado en: {file_path}")
             
-            # (Opcional) Si usas pytest-html, esto adjunta la imagen al reporte
+            # Adjunta la imagen al reporte
             if "pytest_html" in item.config.pluginmanager.list_name_plugin():
                  extra = getattr(rep, "extra", [])
                  
                  # Se agrega lógica para adjuntar al HTML
                  extra.append(pytest_html.extras.image(file_path))
                  rep.extra = extra
+            # 4. ADJUNTAR AL REPORTE HTML
+            html = f'<div><img src="{file_path}" alt="screenshot" style="width:300px;height:200px;" onclick="window.open(this.src)" align="right"/></div>'
+            rep.extra = [pytest_html.extras.html(html)]   
+
+
 # --- Fixtures de Datos ---
 
 @pytest.fixture(scope="session")
@@ -88,7 +98,25 @@ def usuario_bloqueado():
     """Retorna credenciales de un usuario bloqueado."""
     return {"usuario": "locked_out_user", "password": "secret_sauce"}
 
+@pytest.fixture(scope="session", autouse=True)
+def configure_logging():
+    log_file = "execution.log"
+    # Configuración básica: nivel INFO
+    logging.basicConfig(
+        level=logging.INFO, 
+        format='%(asctime)s - %(levelname)s - %(name)s - %(message)s',
+        handlers=[
+            logging.FileHandler(log_file, mode='w'),
+            logging.StreamHandler()
+        ]
+    )
+    logger = logging.getLogger(__name__)
+    logger.info("--- Sesión de Pytest Iniciada ---")
+    
+    yield
+    logger.info("--- Sesión de Pytest Finalizada ---")
 
+    
 # --- Fixture de Estado (Fixture que usa fixtures) ---
 
 @pytest.fixture(scope="function")
